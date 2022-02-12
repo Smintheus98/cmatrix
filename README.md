@@ -1,3 +1,9 @@
+## Fork Notes
+This project is forked from [here](https://github.com/abishekvashok/cmatrix).
+This version of cmatrix adds a binary mode where the used characters are limited to `0` and `1`.
+
+A video of this program running in a terminal was used in the theater production "[Der nackte Mensch - Open Source](https://www.rohestheater.de/de/der-nackte-mensch-open-source)" (2019/20) of the school theatre [rohestheater](https://www.rohestheater.de) of the [Mies-van-der-Rohe Schule](https://www.mies-van-der-rohe-schule.de) in Aachen, Germany.
+
 # CMatrix
 
 CMatrix is based on the screensaver from The Matrix website. It shows text
