@@ -77,6 +77,9 @@
 typedef struct cmatrix {
     int val;
     bool is_head;
+#ifndef USE_ORIGINAL
+    int bold;
+#endif
 } cmatrix;
 
 /* Global variables */
@@ -166,6 +169,9 @@ void usage(void) {
     printf(" -m: lambda mode\n");
     printf(" -k: Characters change while scrolling. (Works without -o opt.)\n");
     printf(" -t [tty]: Set tty to use\n");
+#ifndef USE_ORIGINAL
+    printf(" -Y: Binary mode: Only '0' and '1' characters\n");
+#endif
 }
 
 void version(void) {
@@ -329,6 +335,9 @@ int main(int argc, char *argv[]) {
     int pause = 0;
     int classic = 0;
     int changes = 0;
+#ifndef USE_ORIGINAL
+    int binary = 0;
+#endif
     char *msg = "";
     char *tty = NULL;
 
@@ -337,7 +346,11 @@ int main(int argc, char *argv[]) {
 
     /* Many thanks to morph- (morph@jmss.com) for this getopt patch */
     opterr = 0;
+#ifndef USE_ORIGINAL
+    while ((optchr = getopt(argc, argv, "abBcfhlLnrosmxYkVM:u:C:t:")) != EOF) {
+#else
     while ((optchr = getopt(argc, argv, "abBcfhlLnrosmxkVM:u:C:t:")) != EOF) {
+#endif
         switch (optchr) {
         case 's':
             screensaver = 1;
@@ -426,6 +439,11 @@ int main(int argc, char *argv[]) {
         case 't':
             tty = optarg;
             break;
+#ifndef USE_ORIGINAL
+        case 'Y':
+            binary = 1;
+            break;
+#endif
         }
     }
 
@@ -527,6 +545,11 @@ if (console) {
     } else if (console || xwindow) {
         randmin = 166;
         highnum = 217;
+#ifndef USE_ORIGINAL
+    } else if (binary) {
+        randmin = 48;
+        highnum = 50;
+#endif
     } else {
         randmin = 33;
         highnum = 123;
@@ -648,7 +671,11 @@ if (console) {
                 case 'P':
                     pause = (pause == 0)?1:0;
                     break;
-
+#ifndef USE_ORIGINAL
+                case 'Y':
+                    binary = !binary;
+                    break;
+#endif
                 }
             }
         }
@@ -734,6 +761,9 @@ if (console) {
 
                         matrix[i][j].val = (int) rand() % randnum + randmin;
                         matrix[i][j].is_head = true;
+#ifndef USE_ORIGINAL
+                        matrix[i][j].bold = ((int) rand() % 3) == 0;                    // changes
+#endif
 
                         /* If we're at the top of the column and it's reached its
                            full length (about to start moving down), we do this
@@ -825,9 +855,20 @@ if (console) {
                         if (console || xwindow) {
                             attron(A_ALTCHARSET);
                         }
-                        if (bold == 2 ||
-                            (bold == 1 && matrix[i][j].val % 2 == 0)) {
+                        if (bold == 2) {
                             attron(A_BOLD);
+                        }
+                        if (bold == 1) {
+#ifndef USE_ORIGINAL
+                            if (binary == 1) {
+                                if (matrix[i][j].bold == 1) {
+                                    attron(A_BOLD);
+                                }
+                            } else
+#endif
+                            if (matrix[i][j].val % 2 == 0) {
+                                attron(A_BOLD);
+                            }
                         }
                         if (matrix[i][j].val == -1) {
                             addch(' ');
